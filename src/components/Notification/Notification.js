@@ -1,9 +1,13 @@
 import PropTypes from "prop-types";
 import s from "./Notification.module.css";
 
-function Notification({ message }) {
-  return <p className={s.message}>{message}</p>;
-}
+const Notification = ({ message }) => {
+  return (
+    <div className={s.container}>
+      <h2 className={s.message}>{message}</h2>
+    </div>
+  );
+};
 
 Notification.propTypes = {
   message: PropTypes.string.isRequired,
