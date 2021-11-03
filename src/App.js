@@ -1,11 +1,9 @@
 import { Component } from "react";
-
-import Statistics from "./components/Statistics";
-import FeedbackOptions from "./components/FeedbackOptions";
-import Section from "./components/Section";
-import Notification from "./components/Notification";
-import options from "./components/FeedbackOptions/button.json";
-import s from "./App.module.css";
+import Container from "./components/Container/Container";
+import Statistics from "./components/Statistics/Statistics";
+import FeedbackOptions from "./components/FeedbackOptions/FeedbackOptions";
+import Section from "./components/Section/Section";
+import Notification from "./components/Notification/Notification";
 
 class App extends Component {
   state = {
@@ -14,62 +12,45 @@ class App extends Component {
     bad: 0,
   };
 
-  onLeaveFeedback = ({ name }) => {
-    // this.setState((prevState) => ({
-    //     [name]: prevState.name + 1,
-    //   }))
-
-    if (name === "Good")
-      this.setState((prevState) => ({
-        good: prevState.good + 1,
-      }));
-    else if (name === "Neutral")
-      this.setState((prevState) => ({
-        neutral: prevState.neutral + 1,
-      }));
-    else if (name === "Bad")
-      this.setState((prevState) => ({
-        bad: prevState.bad + 1,
-      }));
+  addFeedback = (option) => {
+    this.setState((state) => ({
+      [option]: state[option] + 1,
+    }));
   };
 
-  countTotalFeedback = (good, neutral, bad) => {
-    return good + neutral + bad;
+  countTotalFeedback = () => {
+    return Object.values(this.state).reduce((acc, option) => acc + option, 0);
   };
 
-  countPositiveFeedbackPercentage = (total, good) => {
-    const percent = ((100 * good) / total).toFixed(2);
-    return (percent !== "NaN" ? percent : "0") + "%";
+  countPositiveFeedbackPercentage = () => {
+    const { good } = this.state;
+    return Math.round((good / this.countTotalFeedback()) * 100) || 0;
   };
 
   render() {
     const { good, neutral, bad } = this.state;
-    const total = this.countTotalFeedback;
-    const positivePercentage = this.countPositiveFeedbackPercentage;
-
     return (
-      <div className={s.App}>
-        <Section title="Plise leave feedback">
+      <Container>
+        <Section title="Please leave feedback">
           <FeedbackOptions
-            options={options}
-            onLeaveFeedback={this.onLeaveFeedback}
-          ></FeedbackOptions>
+            options={Object.keys(this.state)}
+            onLeaveFeedback={this.addFeedback}
+          />
         </Section>
-
-        {good > 0 || neutral > 0 || bad > 0 ? (
-          <Section title="Statistics">
+        <Section title="Statistics">
+          {this.countTotalFeedback() ? (
             <Statistics
               good={good}
               neutral={neutral}
               bad={bad}
-              total={total}
-              positivePercentage={positivePercentage}
+              total={this.countTotalFeedback()}
+              positivePercentage={this.countPositiveFeedbackPercentage()}
             ></Statistics>
-          </Section>
-        ) : (
-          <Notification message="No feedback given"></Notification>
-        )}
-      </div>
+          ) : (
+            <Notification message="No feedback given" />
+          )}
+        </Section>
+      </Container>
     );
   }
 }
